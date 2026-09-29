@@ -60,23 +60,28 @@ public class Library {
             """;
 
     static void main() {
-        printMenu();
+        while (true) {
+            IO.println(MAIN_MENU);
+            int choice = getInput(1, 6);
+            switch (choice) {
+                case 1 -> addBook();
+                case 2 -> registerMember();
+                case 3 -> loanBookByTitle();
+                case 4 -> returnBook();
+                case 5 -> search();
+                case 6 -> browse();
+                case 0 -> { return; }
+                default -> IO.println("Invalid choice.");
+            }
+        }
     }
 
-    private static void printMenu() {
-        IO.println(MAIN_MENU);
-    }
 
     private static void addBook() {
-        // TODO: Add loop and valid check
-        IO.println("Please enter the title: ");
-        String bookTitle = IO.readln().trim();
-
-        IO.println("Please enter the author: ");
-        String bookAuthor = IO.readln().trim();
-
-        IO.println("Please enter the books ISBN: ");
-        String bookISBN = IO.readln().trim();
+        // TODO: Maybe add duplicate ISBN number check
+        String bookTitle = getRequiredInput("Please enter the title: ");
+        String bookAuthor = getRequiredInput("Please enter the author: ");
+        String bookISBN = getRequiredInput("Please enter the ISBN: ");
 
         Book newBook = new Book(bookISBN, bookTitle, bookAuthor);
 
@@ -86,17 +91,15 @@ public class Library {
             books[emptyIndex] = newBook;
         } else {
             books = extendBooksAndAdd(books, newBook);
-
         }
+        IO.println("Book added successfully.");
     }
 
 
 
     private static void registerMember() {
-
-        // TODO: Add loop and valid check
-        IO.println("Please enter the name of the member: ");
-        String memberName = IO.readln().trim();
+        // TODO: Maybe add same member name check
+        String memberName = getRequiredInput("Please enter the name of the member: ");
 
         lastMemberId++;
         Member  newMember = new Member(memberName, lastMemberId);
@@ -106,8 +109,27 @@ public class Library {
             members[emptyIndex] = newMember;
         } else {
             members = extendMembersAndAdd(members, newMember);
-
         }
+        IO.println("Member added successfully.");
+    }
+
+    private static void loanBookByTitle() {
+        Member member = getMember();
+        IO.println("Please enter the book title: ");
+        String bookTitle = IO.readln().trim();
+        for (Book book : books) {
+            if (book != null && bookTitle.equalsIgnoreCase(book.title())) {
+                IO.println("Found book: ");
+                printBook(book);
+                IO.println("Do you want to borrow this book? \u001B[90m[\u001B[1mY\u001B[0;90m/n]: \u001B[0m ");
+                String yesNo = IO.readln().trim();
+                if (yesNo.equalsIgnoreCase("y") || yesNo.equalsIgnoreCase("yes")) {
+                    loanBook(book, member);
+                }
+                return;
+            }
+        }
+        IO.println("No book found with that title");
     }
 
     private static void loanBook(Book bookToLoan, Member member) {
@@ -342,6 +364,14 @@ public class Library {
 
     // Input loop methods
 
+    private static String getRequiredInput(String prompt) {
+        while(true) {
+            IO.println(prompt);
+            String line = IO.readln().trim();
+            if (!line.isEmpty()) return line;
+            IO.println("Input can't be empty, try again");
+        }
+    }
 
     public static int getInput() {
         while(true){
