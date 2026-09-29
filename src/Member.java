@@ -32,13 +32,48 @@ public class Member {
         }
     }
 
+    public void removeLoan(BookLoan loanToRemove) {
+        for (int i = 0; i <  activeLoans.length; i++) {
+            if (activeLoans[i] == loanToRemove) {
+                activeLoans[i] = null;
+                return;
+            }
+        }
+    }
+
     public boolean canLoan() {
         LocalDate now = LocalDate.now();
         for  (BookLoan loan : activeLoans) {
-            if(loan != null && loan.getReturnDate().isAfter(now)) {
+            if(loan != null && loan.getReturnDate().isBefore(now)) {
                 return false;
             }
         }
         return true;
     }
+
+    public int printActiveLoans() {
+        int loanCount = 0;
+        for (BookLoan loan : activeLoans) {
+            if (loan != null) {
+                loanCount++;
+                IO.println(loanCount + ") ");
+                Library.printBook(loan.book());
+            }
+        }
+        return loanCount;
+    }
+
+    public BookLoan getActiveLoanFromInput(int input) {
+        int loanCount = 0;
+        for (BookLoan loan : activeLoans) {
+            if (loan != null) {
+                loanCount++;
+                if (loanCount == input) {
+                    return loan;
+                }
+            }
+        }
+        return null;
+    }
+
 }

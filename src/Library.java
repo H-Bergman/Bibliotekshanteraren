@@ -132,6 +132,46 @@ public class Library {
     }
 
     private static void returnBook() {
+        // TODO: Add loop and valid check (findMember null check, if null member not found)
+        IO.println("Please enter your name or your member ID: ");
+        Member member;
+        do {
+            String line = IO.readln().trim();
+            try {
+                int memberId = Integer.parseInt(line);
+                member = findMember(memberId);
+            } catch (NumberFormatException e) {
+                member = findMember(line);
+            }
+            if (member == null) {
+                IO.println("Member not found, try again");
+            }
+        } while (member == null);
+
+        IO.println("These are your current book loans: ");
+        int loanCount = member.printActiveLoans();
+
+        if (loanCount == 0) {
+            IO.println("No active loans");
+        } else {
+            IO.println("Please select which book to return (Input book number from above list): ");
+            int choice = getInput(1, loanCount);
+
+            BookLoan bookToReturn = member.getActiveLoanFromInput(choice);
+            if (bookToReturn == null) {
+                IO.println("Return canceled");
+                return;
+            }
+
+            member.removeLoan(bookToReturn);
+            removeLoanFromLibraryLoan(bookToReturn);
+
+            if (returnOnTime(bookToReturn)) {
+                IO.println("The book has been returned!");
+            }  else {
+                IO.println("The book has been returned past it's return date. Next time please return the book in time");
+            }
+        }
 
     }
 
@@ -145,6 +185,43 @@ public class Library {
 
 
     // Helper methods
+    public static boolean returnOnTime(BookLoan loan) {
+        return loan.getReturnDate().isAfter(LocalDate.now());
+    }
+
+    public static void removeLoanFromLibraryLoan(BookLoan loanToRemove) {
+        for (int i = 0; i < bookLoans.length; i++) {
+            if (bookLoans[i] == loanToRemove) {
+                bookLoans[i] = null;
+                return;
+            }
+        }
+    }
+    public static void printBook(Book book) {
+        IO.println("----------------------------");
+        IO.println("ISBN: " + book.isbn());
+        IO.println("Title: " + book.title());
+        IO.println("Author: " + book.author());
+        IO.println("----------------------------");
+    }
+
+    private static Member findMember(String memberName) {
+        for (Member member : members) {
+            if (member != null && member.getName().equals(memberName)) {
+                return member;
+            }
+        }
+        return null;
+    }
+
+    private static Member findMember(int memberId) {
+        for (Member member : members) {
+            if (member != null && member.getId() == memberId) {
+                return member;
+            }
+        }
+        return null;
+    }
 
     private static Book[] extendBooksAndAdd(Book[] books, Book addBook) {
         int oldSize = books.length;
