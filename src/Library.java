@@ -129,24 +129,11 @@ public class Library {
 
         }
         member.addLoan(newLoan);
+        IO.println("The book has been loaned.");
     }
 
     private static void returnBook() {
-        // TODO: Add loop and valid check (findMember null check, if null member not found)
-        IO.println("Please enter your name or your member ID: ");
-        Member member;
-        do {
-            String line = IO.readln().trim();
-            try {
-                int memberId = Integer.parseInt(line);
-                member = findMember(memberId);
-            } catch (NumberFormatException e) {
-                member = findMember(line);
-            }
-            if (member == null) {
-                IO.println("Member not found, try again");
-            }
-        } while (member == null);
+        Member member = getMember();
 
         IO.println("These are your current book loans: ");
         int loanCount = member.printActiveLoans();
@@ -177,6 +164,53 @@ public class Library {
 
     private static void search() {
 
+        while (true) { // Gå ur loopen = retunera till huvudmeny
+            IO.println("Search...");
+            IO.println("Enter to search: ");
+            String search = IO.readln().trim().toLowerCase();
+            if (search.isBlank()) continue;
+            Book[] matches = new Book[books.length];
+            int matchIndex = 0;
+
+            for (Book book : books) {
+                if (book == null) continue;
+                if (book.title().toLowerCase().contains(search) || book.author().toLowerCase().contains(search)) {
+                    matches[matchIndex++] = book;
+                }
+            }
+            if (matchIndex == 0) IO.println("No matches found");
+            else {
+                int listCount = 0;
+                for (Book book : matches) {
+                    if (book == null) continue;
+                    listCount++;
+                    IO.println(listCount + ") ");
+                    printBook(book);
+                    BookLoan bookLoan = getBookLoan(book);
+                    if (bookLoan != null) {
+                        IO.println("""
+                                Status: %s
+                                Loaned by: %s
+                                Return date: %s
+                                """.formatted("Loaned out", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
+                    }
+                }
+                IO.println("Enter book number from the list to loan book or [Q] to return to main menu: ");
+                int choice = getInput(1, listCount);
+                if (choice == 0) return;
+                Member member = getMember();
+                int optionCount = 0;
+                for (Book book : matches) {
+                    if (book != null) {
+                        optionCount++;
+                        if (optionCount == choice) {
+                            loanBook(book, member);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static void browse() {
@@ -185,6 +219,31 @@ public class Library {
 
 
     // Helper methods
+    private static BookLoan getBookLoan(Book book) {
+        for (BookLoan bookLoan : bookLoans) {
+            if (bookLoan != null && bookLoan.book().equals(book)) {
+                return bookLoan;
+            }
+        }
+        return null;
+    }
+    private static Member getMember() {
+        IO.println("Please enter your name or your member ID: ");
+        Member member;
+        do {
+            String line = IO.readln().trim();
+            try {
+                int memberId = Integer.parseInt(line);
+                member = findMember(memberId);
+            } catch (NumberFormatException e) {
+                member = findMember(line);
+            }
+            if (member == null) {
+                IO.println("Member not found, try again");
+            }
+        } while (member == null);
+        return  member;
+    }
     public static boolean returnOnTime(BookLoan loan) {
         return loan.getReturnDate().isAfter(LocalDate.now());
     }
