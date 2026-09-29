@@ -35,7 +35,7 @@ public class Member {
     public boolean canLoan() {
         LocalDate now = LocalDate.now();
         for  (BookLoan loan : activeLoans) {
-            if(loan.getReturnDate().isAfter(now)) {
+            if(loan != null && loan.getReturnDate().isAfter(now)) {
                 return false;
             }
         }
