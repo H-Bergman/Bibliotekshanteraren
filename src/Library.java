@@ -208,14 +208,7 @@ public class Library {
                     listCount++;
                     IO.println(listCount + ") ");
                     printBook(book);
-                    BookLoan bookLoan = getBookLoan(book);
-                    if (bookLoan != null) {
-                        IO.println("""
-                                Status: %s
-                                Loaned by: %s
-                                Return date: %s
-                                """.formatted("Loaned out", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
-                    }
+                    printBookLoan(book);
                 }
                 IO.println("Enter book number from the list to loan book or [Q] to return to main menu: ");
                 int choice = getInput(1, listCount);
@@ -236,11 +229,56 @@ public class Library {
     }
 
     private static void browse() {
+        int listIndex = 0;
+        Book[] displayedBooks = new Book[books.length];
+        for (int i = 0; i < books.length; i++) {
+            displayedBooks[i] = books[i];
+        }
+        Book[] sortedBooks = sortBooks(displayedBooks);
 
+        for (Book book : sortedBooks) {
+            if (book == null) continue;
+            listIndex++;
+            IO.println(listIndex + ") ");
+            printBook(book);
+            printBookLoan(book);
+        }
     }
 
+    private static Book[] sortBooks(Book[] books) {
+        boolean swapped;
+        for (int h = 0; h < books.length; h++) {
+            swapped = false;
+            for (int i = 0; i < books.length - h - 1; i++) {
+                if (books[i] != null && books[i + 1] != null && titleComesAfter(books[i], books[i + 1])) {
+                    Book temp = books[i];
+                    books[i] = books[i + 1];
+                    books[i + 1] = temp;
+                    swapped = true;
+                }
+            }
+            if (!swapped) {
+                break;
+            }
+        }
+        return books;
+    }
 
     // Helper methods
+    private static boolean titleComesAfter(Book first, Book second) {
+        String titleFirst = first.title().toLowerCase();
+        String titleSecond = second.title().toLowerCase();
+        int minLength = Math.min(titleFirst.length(), titleSecond.length());
+        for (int i = 0; i < minLength; i++) {
+            char char1 = titleFirst.charAt(i);
+            char char2 = titleSecond.charAt(i);
+            if (char1 != char2) {
+                return char1 > char2;
+            }
+        }
+        return titleFirst.length() > titleSecond.length();
+    }
+
     private static BookLoan getBookLoan(Book book) {
         for (BookLoan bookLoan : bookLoans) {
             if (bookLoan != null && bookLoan.book().equals(book)) {
@@ -278,6 +316,18 @@ public class Library {
             }
         }
     }
+
+    public static void printBookLoan(Book book) {
+        BookLoan bookLoan = getBookLoan(book);
+        if (bookLoan != null) {
+            IO.println("""
+                                Status: %s
+                                Loaned by: %s
+                                Return date: %s
+                                """.formatted("Loaned out", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
+        }
+    }
+
     public static void printBook(Book book) {
         IO.println("----------------------------");
         IO.println("ISBN: " + book.isbn());
