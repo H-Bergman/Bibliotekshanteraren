@@ -1,39 +1,3 @@
-/*
-
-Needed:
-
-Book record
-Member class
-Library class
-
-Extra
-BookLoan record or class
-
-Book array
-Book loan array
-
-
-
-Methods:
-
-Needed:
-
-Add book to library
-Register new member
-Load a book - Unable to loan book if loan is past return date
-            - Check that book isnt already loaned out
-Return a book
-Search for book - Selecting a book gives book info and loan book option
-                - Search title, author,
-Browse all books - Selecting a book gives book info and loan book option
-                 - Show available books and loaned out books and who has the loan
-
-
-Extra:
-
-
- */
-
 import java.time.LocalDate;
 
 public class Library {
@@ -45,19 +9,19 @@ public class Library {
     static int lastMemberId = 0;
 
     public static final String MAIN_MENU = """
-            Welcome to Bibliotekshanteraren!
+            Välkommen till Bibliotekshanteraren!
             
-            1) Add a new book to the library
-            2) Register new member
+            1) Lägg till bok i biblioteket
+            2) Registrera ny medlem
             
-            3) Loan a book
-            4) Return a book
+            3) Låna en bok
+            4) Returnera en bok
             
-            5) Search
-            6) Browse
-            7) Statistics
+            5) Sök
+            6) Bläddra
+            7) Statistik
             
-            q) Quit
+            q) Avsluta
             """;
 
     static void main() {
@@ -73,21 +37,21 @@ public class Library {
                 case 6 -> browse();
                 case 7 -> showStatistics();
                 case 0 -> { return; }
-                default -> IO.println("Invalid choice.");
+                default -> IO.println("Ogiltigt val.");
             }
         }
     }
 
 
     private static void addBook() {
-        String bookTitle = getRequiredInput("Please enter the title: ");
-        String bookAuthor = getRequiredInput("Please enter the author: ");
-        String bookISBN = getRequiredNumberInput("Please enter the ISBN: ");
+        String bookTitle = getRequiredInput("Ange titeln: ");
+        String bookAuthor = getRequiredInput("Ange författaren: ");
+        String bookISBN = getRequiredNumberInput("Ange ISBN: ");
 
         for (Book book : books) {
             if (book == null) continue;
             if (book.isbn().equals(bookISBN)) {
-                IO.println("Book already exists. Returning to the main menu");
+                IO.println("Boken finns redan. Återgår till huvudmenyn");
                 return;
             }
         }
@@ -101,14 +65,14 @@ public class Library {
         } else {
             books = extendBooksAndAdd(books, newBook);
         }
-        IO.println("Book added successfully.");
+        IO.println("Boken har lagts till.");
     }
 
 
 
     private static void registerMember() {
         // TODO: Maybe add same member name check
-        String memberName = getRequiredInput("Please enter the name of the member: ");
+        String memberName = getRequiredInput("Ange medlemmens namn: ");
 
         lastMemberId++;
         Member  newMember = new Member(memberName, lastMemberId);
@@ -119,27 +83,27 @@ public class Library {
         } else {
             members = extendMembersAndAdd(members, newMember);
         }
-        IO.println("Member added successfully.");
+        IO.println("Medlemmen har lagts till.");
     }
 
     private static void loanBookByTitle() {
         Member member = getMember();
         if (member == null) return;
-        IO.println("Please enter the book title: ");
+        IO.println("Ange boktiteln: ");
         String bookTitle = readLine();
         for (Book book : books) {
             if (book != null && bookTitle.equalsIgnoreCase(book.title())) {
-                IO.println("Found book: ");
+                IO.println("Hittad bok: ");
                 printBook(book);
-                IO.println("Do you want to borrow this book? \u001B[90m[\u001B[1mY\u001B[0;90m/n]: \u001B[0m ");
+                IO.println("Vill du låna den här boken? \u001B[90m[\u001B[1mJ\u001B[0;90m/n]: \u001B[0m ");
                 String yesNo = readLine();
-                if (yesNo.equalsIgnoreCase("y") || yesNo.equalsIgnoreCase("yes")) {
+                if (yesNo.equalsIgnoreCase("j") || yesNo.equalsIgnoreCase("ja")) {
                     loanBook(book, member);
                 }
                 return;
             }
         }
-        IO.println("No book found with that title");
+        IO.println("Ingen bok med den titeln hittades");
     }
 
     private static void loanBook(Book bookToLoan, Member member) {
@@ -147,7 +111,7 @@ public class Library {
         for (BookLoan bookLoan : bookLoans) {
             if(bookLoan != null && bookLoan.book().isbn().equals(bookToLoan.isbn())) {
                 LocalDate returnDate = bookLoan.getReturnDate();
-                IO.println("The book is already loaned. Please find another book or return after " + returnDate.toString() + " to check if the book has been returned");
+                IO.println("Boken är redan utlånad. Hitta en annan bok, eller återkom efter " + returnDate + " för att se om boken har återlämnats");
                 return;
             }
         }
@@ -161,25 +125,25 @@ public class Library {
 
         }
         member.addLoan(newLoan);
-        IO.println("The book has been loaned.");
+        IO.println("Boken har lånats.");
     }
 
     private static void returnBook() {
         Member member = getMember();
         if (member == null) return;
 
-        IO.println("These are your current book loans: ");
+        IO.println("Dessa är dina aktuella boklån: ");
         int loanCount = member.printActiveLoans();
 
         if (loanCount == 0) {
-            IO.println("No active loans");
+            IO.println("Inga aktiva lån");
         } else {
-            IO.println("Please select which book to return (Input book number from above list): ");
+            IO.println("Välj vilken bok du vill returnera (ange boknummer från listan ovan): ");
             int choice = getInput(1, loanCount);
 
             BookLoan bookToReturn = member.getActiveLoanFromInput(choice);
             if (bookToReturn == null) {
-                IO.println("Return canceled");
+                IO.println("Återlämning avbruten");
                 return;
             }
 
@@ -187,9 +151,9 @@ public class Library {
             removeLoanFromLibraryLoan(bookToReturn);
 
             if (returnOnTime(bookToReturn)) {
-                IO.println("The book has been returned!");
+                IO.println("Boken har returnerats!");
             }  else {
-                IO.println("The book has been returned past it's return date. Next time please return the book in time");
+                IO.println("Boken returnerades efter sista återlämningsdatum. Vänligen återlämna boken i tid nästa gång");
             }
         }
 
@@ -198,8 +162,8 @@ public class Library {
     private static void search() {
 
         while (true) {
-            IO.println("Search...");
-            IO.println("Enter to search: ");
+            IO.println("Sök...");
+            IO.println("Ange sökord: ");
             String search = readLine().toLowerCase();
             if (search.isBlank()) continue;
             if ("q".equals(search)) return;
@@ -212,7 +176,7 @@ public class Library {
                     matches[matchIndex++] = book;
                 }
             }
-            if (matchIndex == 0) IO.println("No matches found");
+            if (matchIndex == 0) IO.println("Inga träffar hittades");
             else {
                 int listCount = 0;
                 for (Book book : matches) {
@@ -222,7 +186,7 @@ public class Library {
                     printBook(book);
                     printBookLoan(book);
                 }
-                IO.println("Enter book number from the list to loan book or [Q] to return to main menu: ");
+                IO.println("Ange boknummer från listan för att låna boken, eller [Q] för att återgå till huvudmenyn: ");
                 int choice = getInput(1, listCount);
                 if (choice == 0) return;
                 Member member = getMember();
@@ -266,7 +230,7 @@ public class Library {
         }
         Member[] sortedMembers = sortMembersByActiveLoans(displayedMembers);
 
-        IO.println("List of members active loan count, starting with the member that has the highest amount of active loans: ");
+        IO.println("Lista över medlemmars antal aktiva lån, med flest aktiva lån överst: ");
 
         for (Member member : sortedMembers) {
             if (member == null) continue;
@@ -338,7 +302,7 @@ public class Library {
         return null;
     }
     private static Member getMember() {
-        IO.println("Please enter your name or your member ID: ");
+        IO.println("Ange ditt namn eller medlems-ID: ");
         Member member;
         String line;
         do {
@@ -351,7 +315,7 @@ public class Library {
                 member = findMember(line);
             }
             if (member == null) {
-                IO.println("Member not found, try again");
+                IO.println("Medlemmen hittades inte, försök igen");
             }
         } while (member == null);
         return  member;
@@ -374,17 +338,17 @@ public class Library {
         if (bookLoan != null) {
             IO.println("""
                                 Status: %s
-                                Loaned by: %s
-                                Return date: %s
-                                """.formatted("Loaned out", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
+                                Utlånad till: %s
+                                Återlämningsdatum: %s
+                                """.formatted("Utlånad", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
         }
     }
 
     public static void printBook(Book book) {
         IO.println("----------------------------");
         IO.println("ISBN: " + book.isbn());
-        IO.println("Title: " + book.title());
-        IO.println("Author: " + book.author());
+        IO.println("Titel: " + book.title());
+        IO.println("Författare: " + book.author());
         IO.println("----------------------------");
     }
 
@@ -476,7 +440,7 @@ public class Library {
             IO.println(prompt);
             String line = readLine();
             if (!line.isBlank()) return line;
-            IO.println("Input can't be empty, try again");
+            IO.println("Fältet kan inte vara tomt, försök igen");
         }
     }
 
@@ -485,11 +449,11 @@ public class Library {
             IO.println(prompt);
             String line = readLine();
             if (line.isBlank()) {
-                IO.println("Input can't be empty, try again");
+                IO.println("Fältet kan inte vara tomt, försök igen");
                 continue;
             }
             if (!isNumber(line)) {
-                IO.println("Input must contain only numbers, try again");
+                IO.println("Endast siffror tillåtna, försök igen");
                 continue;
             }
             return line;
@@ -513,7 +477,7 @@ public class Library {
             try {
                 return Integer.parseInt(line);
             } catch (NumberFormatException _) {}
-            IO.println("Invalid input! Please try again");
+            IO.println("Ogiltig inmatning! Försök igen");
         }
     }
 
@@ -526,7 +490,7 @@ public class Library {
                 int input = Integer.parseInt(line);
                 if (input >= min && input <= max) return input;
             } catch (NumberFormatException _) {}
-            IO.println("Invalid input! Please try again");
+            IO.println("Ogiltig inmatning! Försök igen");
         }
     }
 

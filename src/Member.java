@@ -78,9 +78,9 @@ public class Member {
 
     public void printLoanCount() {
         IO.println("----------------------------");
-        IO.println("Member ID: " + id);
-        IO.println("Name: " + name);
-        IO.println("Active loans: " + getActiveLoanCount());
+        IO.println("Medlems-ID: " + id);
+        IO.println("Namn: " + name);
+        IO.println("Aktiva lån: " + getActiveLoanCount());
         IO.println("----------------------------");
     }
 
