@@ -80,10 +80,17 @@ public class Library {
 
 
     private static void addBook() {
-        // TODO: Maybe add duplicate ISBN number check
         String bookTitle = getRequiredInput("Please enter the title: ");
         String bookAuthor = getRequiredInput("Please enter the author: ");
-        String bookISBN = getRequiredInput("Please enter the ISBN: ");
+        String bookISBN = getRequiredNumberInput("Please enter the ISBN: ");
+
+        for (Book book : books) {
+            if (book == null) continue;
+            if (book.isbn().equals(bookISBN)) {
+                IO.println("Book already exists. Returning to the main menu");
+                return;
+            }
+        }
 
         Book newBook = new Book(bookISBN, bookTitle, bookAuthor);
 
@@ -188,7 +195,7 @@ public class Library {
 
     private static void search() {
 
-        while (true) { // Gå ur loopen = retunera till huvudmeny
+        while (true) {
             IO.println("Search...");
             IO.println("Enter to search: ");
             String search = IO.readln().trim().toLowerCase();
@@ -457,9 +464,34 @@ public class Library {
         while(true) {
             IO.println(prompt);
             String line = IO.readln().trim();
-            if (!line.isEmpty()) return line;
+            if (!line.isBlank()) return line;
             IO.println("Input can't be empty, try again");
         }
+    }
+
+    private static String getRequiredNumberInput(String prompt) {
+        while(true) {
+            IO.println(prompt);
+            String line = IO.readln().trim();
+            if (line.isBlank()) {
+                IO.println("Input can't be empty, try again");
+                continue;
+            }
+            if (!isNumber(line)) {
+                IO.println("Input must contain only numbers, try again");
+                continue;
+            }
+            return line;
+        }
+    }
+    private static boolean isNumber(String line) {
+        if (line == null || line.isBlank()) return false;
+        for (int i = 0; i < line.length(); i++) {
+            if (!Character.isDigit(line.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static int getInput() {
