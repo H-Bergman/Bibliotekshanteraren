@@ -76,4 +76,22 @@ public class Member {
         return null;
     }
 
+    public void printLoanCount() {
+        IO.println("----------------------------");
+        IO.println("Member ID: " + id);
+        IO.println("Name: " + name);
+        IO.println("Active loans: " + getActiveLoanCount());
+        IO.println("----------------------------");
+    }
+
+    public int getActiveLoanCount() {
+        int count = 0;
+        for (BookLoan loan : activeLoans) {
+            if (loan != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 }

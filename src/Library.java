@@ -55,6 +55,7 @@ public class Library {
             
             5) Search
             6) Browse
+            7) Statistics
             
             q) Quit
             """;
@@ -62,7 +63,7 @@ public class Library {
     static void main() {
         while (true) {
             IO.println(MAIN_MENU);
-            int choice = getInput(1, 6);
+            int choice = getInput(1, 7);
             switch (choice) {
                 case 1 -> addBook();
                 case 2 -> registerMember();
@@ -70,6 +71,7 @@ public class Library {
                 case 4 -> returnBook();
                 case 5 -> search();
                 case 6 -> browse();
+                case 7 -> showStatistics();
                 case 0 -> { return; }
                 default -> IO.println("Invalid choice.");
             }
@@ -243,6 +245,43 @@ public class Library {
             printBook(book);
             printBookLoan(book);
         }
+    }
+
+    private static void showStatistics() {
+        int listIndex = 0;
+        Member[] displayedMembers = new Member[members.length];
+        for (int i = 0; i < members.length; i++) {
+            displayedMembers[i] = members[i];
+        }
+        Member[] sortedMembers = sortMembersByActiveLoans(displayedMembers);
+
+        IO.println("List of members active loan count, starting with the member that has the highest amount of active loans: ");
+
+        for (Member member : sortedMembers) {
+            if (member == null) continue;
+            listIndex++;
+            IO.println(listIndex + ") ");
+            member.printLoanCount();
+        }
+    }
+
+    private static Member[] sortMembersByActiveLoans(Member[] members) {
+        boolean swapped;
+        for (int h = 0; h < members.length; h++) {
+            swapped = false;
+            for (int i = 0; i < members.length - h - 1; i++) {
+                if (members[i] != null && members[i + 1] != null && members[i].getActiveLoanCount() < members[i +1].getActiveLoanCount()) {
+                    Member temp = members[i];
+                    members[i] = members[i + 1];
+                    members[i + 1] = temp;
+                    swapped = true;
+                }
+            }
+            if (!swapped) {
+                break;
+            }
+        }
+        return members;
     }
 
     private static Book[] sortBooks(Book[] books) {
