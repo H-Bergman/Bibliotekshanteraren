@@ -124,14 +124,15 @@ public class Library {
 
     private static void loanBookByTitle() {
         Member member = getMember();
+        if (member == null) return;
         IO.println("Please enter the book title: ");
-        String bookTitle = IO.readln().trim();
+        String bookTitle = readLine();
         for (Book book : books) {
             if (book != null && bookTitle.equalsIgnoreCase(book.title())) {
                 IO.println("Found book: ");
                 printBook(book);
                 IO.println("Do you want to borrow this book? \u001B[90m[\u001B[1mY\u001B[0;90m/n]: \u001B[0m ");
-                String yesNo = IO.readln().trim();
+                String yesNo = readLine();
                 if (yesNo.equalsIgnoreCase("y") || yesNo.equalsIgnoreCase("yes")) {
                     loanBook(book, member);
                 }
@@ -142,7 +143,7 @@ public class Library {
     }
 
     private static void loanBook(Book bookToLoan, Member member) {
-        if (!member.canLoan()) return;
+        if (member == null || !member.canLoan()) return;
         for (BookLoan bookLoan : bookLoans) {
             if(bookLoan != null && bookLoan.book().isbn().equals(bookToLoan.isbn())) {
                 LocalDate returnDate = bookLoan.getReturnDate();
@@ -165,6 +166,7 @@ public class Library {
 
     private static void returnBook() {
         Member member = getMember();
+        if (member == null) return;
 
         IO.println("These are your current book loans: ");
         int loanCount = member.printActiveLoans();
@@ -198,8 +200,9 @@ public class Library {
         while (true) {
             IO.println("Search...");
             IO.println("Enter to search: ");
-            String search = IO.readln().trim().toLowerCase();
+            String search = readLine().toLowerCase();
             if (search.isBlank()) continue;
+            if ("q".equals(search)) return;
             Book[] matches = new Book[books.length];
             int matchIndex = 0;
 
@@ -223,6 +226,7 @@ public class Library {
                 int choice = getInput(1, listCount);
                 if (choice == 0) return;
                 Member member = getMember();
+                if (member == null) return;
                 int optionCount = 0;
                 for (Book book : matches) {
                     if (book != null) {
@@ -336,8 +340,10 @@ public class Library {
     private static Member getMember() {
         IO.println("Please enter your name or your member ID: ");
         Member member;
+        String line;
         do {
-            String line = IO.readln().trim();
+            line = readLine();
+            if (line.equalsIgnoreCase("q")) return null;
             try {
                 int memberId = Integer.parseInt(line);
                 member = findMember(memberId);
@@ -460,10 +466,15 @@ public class Library {
 
     // Input loop methods
 
+    private static String readLine() {
+        String line = IO.readln();
+        return line == null ? "q" : line.trim();
+    }
+
     private static String getRequiredInput(String prompt) {
         while(true) {
             IO.println(prompt);
-            String line = IO.readln().trim();
+            String line = readLine();
             if (!line.isBlank()) return line;
             IO.println("Input can't be empty, try again");
         }
@@ -472,7 +483,7 @@ public class Library {
     private static String getRequiredNumberInput(String prompt) {
         while(true) {
             IO.println(prompt);
-            String line = IO.readln().trim();
+            String line = readLine();
             if (line.isBlank()) {
                 IO.println("Input can't be empty, try again");
                 continue;
@@ -496,7 +507,7 @@ public class Library {
 
     public static int getInput() {
         while(true){
-            String line = IO.readln().trim();
+            String line = readLine();
 
             if (line.equalsIgnoreCase("q")) return 0;
             try {
@@ -508,7 +519,7 @@ public class Library {
 
     public static int getInput(int min, int max) {
         while(true){
-            String line = IO.readln().trim();
+            String line = readLine();
 
             if (line.equalsIgnoreCase("q")) return 0; //
             try {
