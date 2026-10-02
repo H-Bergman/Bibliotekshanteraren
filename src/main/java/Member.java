@@ -7,8 +7,8 @@ public class Member {
     private BookLoan[] activeLoans = new BookLoan[5];
 
     public Member(String name, int lastId) {
-        this.name = name;
-        this.id = lastId;
+        setName(name);
+        setId(lastId);
     }
 
     public String getName() {
@@ -17,6 +17,14 @@ public class Member {
 
     public int getId() {
         return id;
+    }
+
+    private void setName(String name) {
+        this.name = name;
+    }
+
+    private void setId(int id) {
+        this.id = id;
     }
 
     public BookLoan[] getActiveLoans() {

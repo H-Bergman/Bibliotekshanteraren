@@ -71,7 +71,6 @@ public class Library {
 
 
     private static void registerMember() {
-        // TODO: Maybe add same member name check
         String memberName = getRequiredInput("Ange medlemmens namn: ");
 
         lastMemberId++;
@@ -107,7 +106,11 @@ public class Library {
     }
 
     private static void loanBook(Book bookToLoan, Member member) {
-        if (member == null || !member.canLoan()) return;
+        if (member == null) return;
+        if (!member.canLoan()) {
+            IO.println("Du har försenade lån och kan inte låna nya böcker förrän de är återlämnade");
+            return;
+        }
         for (BookLoan bookLoan : bookLoans) {
             if(bookLoan != null && bookLoan.book().isbn().equals(bookToLoan.isbn())) {
                 LocalDate returnDate = bookLoan.getReturnDate();
@@ -220,6 +223,7 @@ public class Library {
             printBook(book);
             printBookLoan(book);
         }
+        if (listIndex == 0) IO.println("Inga böcker i biblioteket");
     }
 
     private static void showStatistics() {
@@ -238,6 +242,7 @@ public class Library {
             IO.println(listIndex + ") ");
             member.printLoanCount();
         }
+        if (listIndex == 0) IO.println("Inga medlemmar registrerade");
     }
 
     private static Member[] sortMembersByActiveLoans(Member[] members) {
@@ -321,7 +326,7 @@ public class Library {
         return  member;
     }
     public static boolean returnOnTime(BookLoan loan) {
-        return loan.getReturnDate().isAfter(LocalDate.now());
+        return !loan.getReturnDate().isBefore(LocalDate.now());
     }
 
     public static void removeLoanFromLibraryLoan(BookLoan loanToRemove) {
@@ -341,6 +346,9 @@ public class Library {
                                 Utlånad till: %s
                                 Återlämningsdatum: %s
                                 """.formatted("Utlånad", bookLoan.member().getName(), bookLoan.getReturnDate().toString()));
+        }
+        else {
+            IO.println("Status: Tillgänglig");
         }
     }
 
@@ -467,18 +475,6 @@ public class Library {
             }
         }
         return true;
-    }
-
-    public static int getInput() {
-        while(true){
-            String line = readLine();
-
-            if (line.equalsIgnoreCase("q")) return 0;
-            try {
-                return Integer.parseInt(line);
-            } catch (NumberFormatException _) {}
-            IO.println("Ogiltig inmatning! Försök igen");
-        }
     }
 
     public static int getInput(int min, int max) {
