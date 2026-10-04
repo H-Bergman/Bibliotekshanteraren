@@ -16,7 +16,7 @@ A command-line library management system written in Java for Laboration 1. It is
 
 <br>
 
----
+
 
 ## Reflektion
 
